@@ -1,0 +1,10 @@
+sqlalchemy
+passlib[bcrypt] #armazenametno com criptografia
+python-jose[cryptography] #Consumo dos tokens de autenticação JWT
+python-dotenv
+fastapi
+uvicorn
+python-multipart
+sqlalchemy_utils
+alembic #Migração do banco de dados
+bcrypt #Versão 4.0.1 para compatibilidade com o passlib
