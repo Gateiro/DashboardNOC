@@ -19,6 +19,12 @@ def criarToken(id_usuario, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_M
     jwt_codificado = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
     return jwt_codificado
 
+def verificar_token(token, session: Session = Depends(pegarSessao)):
+    #VERIFICAR O TOKEN SE É VALIDO
+    #EXTRAR O id DO USUARIO DO TOKEN
+    usuario = session.query(Usuario).filter(Usuario.idUsuario==1).first()
+    return
+
 def autenticarUsuario(email, senha, session):
     usuario = session.query(Usuario).filter(Usuario.emailUsuario==email).first()
     if not usuario:
@@ -60,8 +66,19 @@ async def login(login_schema:LoginSchema, session:Session=Depends(pegarSessao)):
         raise HTTPException(status_code=400, detail="Usuário não encontrado ou credenciais inválivdas")
     else:
         accessToken = criarToken(usuario.idUsuario)
-        refreshToken = criarToken(usuario.idUsuario)
+        refreshToken = criarToken(usuario.idUsuario, duracao_token=timedelta(days=7))
         return {
             "access_token": accessToken,
+            "refresh_token": refreshToken,
             "token_type": "Bearer"
         }
+    
+@auth_router.get("/refresh")
+async def use_refresh_token(token = Depends()):
+    #Verificar o token
+    usuario = verificar_token(token)
+    access_token = criarToken(usuario.id)
+    return {
+        "access_token": access_token,
+        "token_type": "Bearer"
+    }
