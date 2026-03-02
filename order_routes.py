@@ -3,11 +3,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from dependencias import pegarSessao
+from dependencias import pegarSessao, verificar_token
 from schemas import AlertasSchema, ClientesSchema, ChamadosSchema
-from models import Alertas, Clientes, Chamados
+from models import Alertas, Clientes, Chamados, Usuario
 
-order_router = APIRouter(prefix='/funcionalidades', tags=['funcionalidadesSystem'])
+order_router = APIRouter(prefix='/funcionalidades', tags=['funcionalidadesSystem'], dependencies=[Depends(verificar_token)])
 
 @order_router.get("/")
 async def pedidos():
@@ -56,3 +56,17 @@ async def cadastroChamado(chamado_schema: ChamadosSchema, session: Session = Dep
         session.add(novoChamado)
         session.commit()
         return HTTPException(status_code=200, detail=f"Chamado {chamado_schema.ocorrencias} cadastrado com sucesso!")
+
+@order_router.post("/chamados/cancelar/{ocorrencias}")
+async def cancelar_chamados(numero_ocorrencia: str, session: Session = Depends(pegarSessao), usuario: Usuario = Depends(verificar_token)):
+    chamado = session.query(Chamados).filter(Chamados.ocorrencias==numero_ocorrencia).first()
+    if not chamado:
+        raise HTTPException(status_code=400, detail="Chamado não encontrado")
+    if not usuario.admin:
+        raise HTTPException(status_code=400, detail="Você não tem autorização para cancelar o chamado")
+    chamado.status = "CANCELADO"
+    session.commit()
+    return {
+        "mensagem" : f"Chamado número: {chamado.ocorrencias} cancelado com sucesso",
+        "chamado" : chamado
+    }
