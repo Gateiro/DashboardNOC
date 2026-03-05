@@ -1,9 +1,9 @@
 # --- ARQUIVO DE ROTAS DE CONFIGURAÇÃO DO PROGRAMA ---
 
 from fastapi import APIRouter, Depends, HTTPException
-from models import Usuario
+from database.models import Usuario
 from sqlalchemy.orm import Session
-from dependencias import pegarSessao, verificar_token
+from app.dependencias import pegarSessao, verificar_token
 from main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 from schemas import UsuarioSchema, LoginSchema
 from jose import jwt, JWTError

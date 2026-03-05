@@ -1,9 +1,9 @@
 # --- ARQUIVO DE DEPENDENCIAS DO PROGRAMA ---
 
 from fastapi import Depends, HTTPException
-from models import db
+from database.models import db
 from sqlalchemy.orm import sessionmaker, Session
-from models import Usuario
+from database.models import Usuario
 from jose import jwt, JWTError
 from main import SECRET_KEY, ALGORITHM, oauth2_schema
 
